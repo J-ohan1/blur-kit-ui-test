@@ -2,39 +2,75 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Mic, Radio, Link2, AlertTriangle } from 'lucide-react'
 
-// ============================================================================
-// Types
-// ============================================================================
+// ═══════════════════════════════════════════════════════════════
+// Apple HIG Design System — translated to React/Tailwind
+// ═══════════════════════════════════════════════════════════════
+//
+// Principles: Clarity, Deference, Depth
+// Typography: SF Pro / system font, semantic text styles
+// Colors: Semantic (primary/secondary/tertiary labels)
+// Spacing: 8pt grid (4, 8, 16, 24, 32)
+// Motion: Spring physics, 0.2-0.5s durations
+// Touch targets: Minimum 44×44pt
+// Borders: Minimal, use separation through depth/fill instead
+//
+
+// ─── Types ───
 
 type NavPage = 'home' | 'cuegrid' | 'selector' | 'group' | 'player' | 'time' |
   'hub' | 'recording' | 'audio' | 'keybind' | 'timecode' | 'macro' | 'showfile' | 'docs' | 'info'
 
 interface ProfileState {
   name: string
-  key: string          // 25 chars, we show first 5 + last 5
+  key: string
   isLinked: boolean
   isFlagged: boolean
   isRecording: boolean
   isAudioRunning: boolean
 }
 
-// ============================================================================
+// ─── Apple semantic color tokens (dark mode) ───
+
+const colors = {
+  labelPrimary: 'text-white',
+  labelSecondary: 'text-white/60',
+  labelTertiary: 'text-white/30',
+  labelQuaternary: 'text-white/18',
+  fillPrimary: 'bg-white/[0.12]',
+  fillSecondary: 'bg-white/[0.08]',
+  fillTertiary: 'bg-white/[0.05]',
+  separator: 'border-white/10',
+  bgPrimary: 'bg-black',
+  bgSecondary: 'bg-[#1c1c1e]',
+  bgTertiary: 'bg-[#2c2c2e]',
+}
+
+// ─── Apple easing curves ───
+
+const appleEase = [0.4, 0, 0.2, 1] as const
+const appleSpring = { type: 'spring', stiffness: 300, damping: 30 } as const
+
+// ═══════════════════════════════════════════════════════════════
 // Main App
-// ============================================================================
+// ═══════════════════════════════════════════════════════════════
 
 export default function BlurKitUI() {
   const [activePage, setActivePage] = useState<NavPage>('home')
   const [profile, setProfile] = useState<ProfileState>({
     name: 'Kinsoaki',
-    key: 'BLURX8K29F3M7Q1P4Z6W8L2NC', // 25 chars
+    key: 'BLURX8K29F3M7Q1P4Z6W8L2NC',
     isLinked: true,
     isFlagged: false,
     isRecording: false,
@@ -43,11 +79,11 @@ export default function BlurKitUI() {
 
   return (
     <div className="h-screen w-screen flex flex-col bg-black relative overflow-hidden">
-      {/* Animated background — subtle white orbs, slowly moving */}
-      <AnimatedBackground />
+      {/* Subtle ambient background — Apple deference principle */}
+      <AmbientBackground />
 
-      {/* Floating Nav Bar */}
-      <FloatingNavBar
+      {/* Navigation */}
+      <FloatingNav
         activePage={activePage}
         onPageChange={setActivePage}
         profile={profile}
@@ -57,61 +93,55 @@ export default function BlurKitUI() {
         onToggleFlagged={() => setProfile(p => ({ ...p, isFlagged: !p.isFlagged }))}
       />
 
-      {/* Workspace */}
-      <div className="flex-1 overflow-hidden relative">
+      {/* Content */}
+      <main className="flex-1 overflow-hidden relative">
         <AnimatePresence mode="wait">
           <motion.div
             key={activePage}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: 0.3, ease: appleEase }}
             className="absolute inset-0"
           >
             {activePage === 'home' ? (
-              <HomePage profile={profile} />
+              <HomeView profile={profile} />
             ) : (
-              <PlaceholderPage page={activePage} />
+              <PlaceholderView page={activePage} />
             )}
           </motion.div>
         </AnimatePresence>
-      </div>
+      </main>
     </div>
   )
 }
 
-// ============================================================================
-// Animated Background — slow moving white orbs (Apple-style deference)
-// ============================================================================
+// ═══════════════════════════════════════════════════════════════
+// Ambient Background — deference: content is the focus
+// ═══════════════════════════════════════════════════════════════
 
-function AnimatedBackground() {
+function AmbientBackground() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <motion.div
-        className="absolute w-[600px] h-[600px] rounded-full blur-[150px]"
-        style={{ background: 'rgba(255,255,255,0.025)' }}
-        animate={{ x: ['-10%', '60%', '30%', '-10%'], y: ['-10%', '30%', '60%', '-10%'] }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="absolute w-[500px] h-[500px] rounded-full blur-[130px]"
+        className="absolute w-[500px] h-[500px] rounded-full blur-[120px]"
         style={{ background: 'rgba(255,255,255,0.02)' }}
-        animate={{ x: ['80%', '20%', '50%', '80%'], y: ['60%', '20%', '40%', '60%'] }}
-        transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
+        animate={{ x: ['-10%', '50%', '20%', '-10%'], y: ['-10%', '30%', '50%', '-10%'] }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
       />
       <motion.div
         className="absolute w-[400px] h-[400px] rounded-full blur-[100px]"
         style={{ background: 'rgba(255,255,255,0.015)' }}
-        animate={{ x: ['40%', '10%', '70%', '40%'], y: ['70%', '40%', '20%', '70%'] }}
-        transition={{ duration: 30, repeat: Infinity, ease: 'easeInOut' }}
+        animate={{ x: ['70%', '20%', '40%', '70%'], y: ['50%', '20%', '30%', '50%'] }}
+        transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
       />
     </div>
   )
 }
 
-// ============================================================================
-// Floating Nav Bar — liquid glass, centered, gradient sweep
-// ============================================================================
+// ═══════════════════════════════════════════════════════════════
+// Floating Navigation — glass, centered, minimal
+// ═══════════════════════════════════════════════════════════════
 
 const NAV_ITEMS: { key: NavPage; label: string }[] = [
   { key: 'home', label: 'Home' },
@@ -131,7 +161,7 @@ const NAV_ITEMS: { key: NavPage; label: string }[] = [
   { key: 'info', label: 'Info' },
 ]
 
-function FloatingNavBar({
+function FloatingNav({
   activePage, onPageChange, profile,
   onToggleRecording, onToggleAudio, onToggleLinked, onToggleFlagged,
 }: {
@@ -144,40 +174,43 @@ function FloatingNavBar({
   onToggleFlagged: () => void
 }) {
   return (
-    <div className="px-4 pt-3 pb-2 relative z-20">
-      <div className="liquid-glass rounded-2xl relative overflow-hidden">
-        {/* White gradient sweep overlay */}
-        <div className="absolute inset-0 navbar-gradient pointer-events-none rounded-2xl" />
-
-        <div className="relative flex items-center gap-3 px-4 py-2">
-          {/* Version — left */}
+    <nav className="px-4 pt-3 pb-2 relative z-20">
+      <div
+        className="rounded-2xl relative overflow-hidden"
+        style={{
+          background: 'rgba(28, 28, 30, 0.72)',
+          backdropFilter: 'blur(40px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+          border: '0.5px solid rgba(255, 255, 255, 0.12)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 0.5px 0 rgba(255,255,255,0.1)',
+        }}
+      >
+        <div className="relative flex items-center gap-2 px-3 py-2">
+          {/* App identity — left */}
           <div className="flex items-center gap-1.5 pr-3 border-r border-white/10 flex-shrink-0">
             <span className="text-sm font-bold tracking-tight text-white">Blur</span>
-            <span className="text-[8px] text-neutral-600 font-mono">v3.9.6</span>
+            <span className="text-[8px] text-white/30 font-mono">v3.9.6</span>
           </div>
 
-          {/* Global buttons — CENTERED */}
+          {/* Navigation buttons — centered */}
           <div className="flex-1 flex items-center justify-center gap-0.5 overflow-x-auto nav-scroll">
-            {NAV_ITEMS.map((item) => {
-              const isActive = activePage === item.key
-              return (
-                <button
-                  key={item.key}
-                  onClick={() => onPageChange(item.key)}
-                  className={`px-3 py-1.5 rounded-lg text-[10px] font-medium transition-all duration-200 whitespace-nowrap ${
-                    isActive
-                      ? 'bg-white text-black'
-                      : 'text-white/60 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              )
-            })}
+            {NAV_ITEMS.map((item) => (
+              <button
+                key={item.key}
+                onClick={() => onPageChange(item.key)}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-medium transition-all duration-200 whitespace-nowrap min-h-[32px] ${
+                  activePage === item.key
+                    ? 'bg-white text-black'
+                    : 'text-white/60 hover:text-white hover:bg-white/[0.08]'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
 
-          {/* Profile Badge — right */}
-          <ProfileBadge
+          {/* Profile — right */}
+          <ProfileMenu
             profile={profile}
             onToggleRecording={onToggleRecording}
             onToggleAudio={onToggleAudio}
@@ -186,20 +219,20 @@ function FloatingNavBar({
           />
         </div>
       </div>
-    </div>
+    </nav>
   )
 }
 
-// ============================================================================
-// Profile Badge — compact, P icon + name only, key hidden
-// ============================================================================
+// ═══════════════════════════════════════════════════════════════
+// Profile Menu — shadcn DropdownMenu, Apple list style
+// ═══════════════════════════════════════════════════════════════
 
 function maskKey(key: string): string {
   if (key.length <= 10) return key
   return key.substring(0, 5) + '•••••' + key.substring(key.length - 5)
 }
 
-function ProfileBadge({
+function ProfileMenu({
   profile, onToggleRecording, onToggleAudio, onToggleLinked, onToggleFlagged,
 }: {
   profile: ProfileState
@@ -208,123 +241,146 @@ function ProfileBadge({
   onToggleLinked: () => void
   onToggleFlagged: () => void
 }) {
-  // Status indicator on P icon
-  let statusElement: React.ReactNode = null
+  // Status indicator
+  let statusDot: React.ReactNode = null
   if (profile.isFlagged) {
-    statusElement = <div className="w-2 h-2 rounded-full bg-yellow-400" style={{ animation: 'smoothBlink 1.5s ease-in-out infinite' }} />
+    statusDot = <div className="w-2 h-2 rounded-full bg-yellow-400" style={{ animation: 'smoothBlink 1.5s ease-in-out infinite' }} />
   } else if (profile.isRecording && profile.isAudioRunning) {
-    statusElement = <AlternateStatus />
+    statusDot = <AlternateStatus />
   } else if (profile.isRecording) {
-    statusElement = <div className="w-2 h-2 rounded-full bg-red-500" style={{ animation: 'smoothBlink 1.5s ease-in-out infinite' }} />
+    statusDot = <div className="w-2 h-2 rounded-full bg-red-500" style={{ animation: 'smoothBlink 1.5s ease-in-out infinite' }} />
   } else if (profile.isAudioRunning) {
-    statusElement = <Radio size={8} className="text-blue-400" style={{ animation: 'smoothPulse 1.2s ease-in-out infinite' }} />
+    statusDot = <Radio size={8} className="text-blue-400" style={{ animation: 'smoothPulse 1.2s ease-in-out infinite' }} />
   }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className={`flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full transition-all flex-shrink-0 border ${
-            profile.isFlagged ? 'border-yellow-500/40' : 'border-white/10'
-          } hover:bg-white/5`}
+          className={`flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full transition-all flex-shrink-0 border min-h-[36px] ${
+            profile.isFlagged ? 'border-yellow-500/30' : 'border-white/10'
+          } hover:bg-white/[0.08]`}
         >
-          <div className="relative w-7 h-7 rounded-full flex items-center justify-center bg-white/5">
-            <span className="text-[11px] font-bold text-white">P</span>
-            {statusElement && (
-              <div className="absolute -top-0.5 -right-0.5 z-10">{statusElement}</div>
-            )}
-          </div>
+          {/* Avatar */}
+          <Avatar className="w-7 h-7 rounded-full bg-white/[0.08]">
+            <AvatarFallback className="bg-transparent text-[11px] font-bold text-white">
+              P
+            </AvatarFallback>
+          </Avatar>
+          {/* Name only — no key */}
           <span className="text-[10px] font-medium text-white">{profile.name}</span>
-          <div className={`w-1.5 h-1.5 rounded-full ${profile.isLinked ? 'bg-emerald-400' : 'bg-neutral-700'}`} />
+          {/* Linked dot */}
+          <div className={`w-1.5 h-1.5 rounded-full ${profile.isLinked ? 'bg-emerald-400' : 'bg-white/20'}`} />
+          {/* Status dot */}
+          {statusDot && <div className="absolute top-1 right-1">{statusDot}</div>}
         </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
         align="end"
-        className="w-64 p-0 rounded-2xl liquid-glass-elevated border-white/10"
+        className="w-64 p-0 rounded-2xl border-white/10"
+        style={{
+          background: 'rgba(28, 28, 30, 0.8)',
+          backdropFilter: 'blur(50px) saturate(200%)',
+          WebkitBackdropFilter: 'blur(50px) saturate(200%)',
+          border: '0.5px solid rgba(255,255,255,0.15)',
+          boxShadow: '0 16px 48px rgba(0,0,0,0.6), inset 0 0.5px 0 rgba(255,255,255,0.1)',
+        }}
       >
-        {/* Header — name + masked key */}
-        <div className="flex items-center gap-3 p-3 pb-2">
-          <div className={`relative w-10 h-10 rounded-full flex items-center justify-center bg-white/5 ${
-            profile.isFlagged ? 'border border-yellow-500/40' : ''
+        {/* Header — Apple grouped list style */}
+        <div className="flex items-center gap-3 px-3 py-3">
+          <div className={`relative w-10 h-10 rounded-full flex items-center justify-center bg-white/[0.08] ${
+            profile.isFlagged ? 'border border-yellow-500/30' : ''
           }`}>
             <span className="text-sm font-bold text-white">P</span>
-            {statusElement && (
-              <div className="absolute -top-0.5 -right-0.5 z-10">{statusElement}</div>
-            )}
+            {statusDot && <div className="absolute -top-0.5 -right-0.5">{statusDot}</div>}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[12px] font-semibold text-white truncate">{profile.name}</p>
-            <p className="text-[8px] text-neutral-600 font-mono">{maskKey(profile.key)}</p>
+            <p className="text-[13px] font-semibold text-white truncate">{profile.name}</p>
+            <p className="text-[9px] text-white/30 font-mono">{maskKey(profile.key)}</p>
           </div>
         </div>
 
         {/* Flagged warning */}
         {profile.isFlagged && (
-          <div className="mx-3 mb-2 flex items-center gap-2 px-2.5 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+          <div className="mx-3 mb-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-yellow-500/10">
             <AlertTriangle size={12} className="text-yellow-400 flex-shrink-0" />
-            <span className="text-[9px] text-yellow-300">Account flagged</span>
+            <span className="text-[10px] text-yellow-300">Account flagged</span>
           </div>
         )}
 
-        {/* Status widgets */}
-        <div className="px-3 pb-2 space-y-1">
-          <p className="text-[8px] uppercase tracking-wider text-neutral-700 font-semibold pt-1 pb-1">Status</p>
+        {/* Status section — Apple grouped list */}
+        <div className="px-3 pb-2">
+          <p className="text-[9px] uppercase tracking-wider text-white/20 font-semibold px-1 py-1.5">Status</p>
 
           {/* Recording */}
-          <button onClick={onToggleRecording} className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-white/5 transition-colors">
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${profile.isRecording ? 'bg-red-500/20' : 'bg-white/5'}`}>
+          <DropdownMenuItem
+            onClick={onToggleRecording}
+            className="rounded-lg cursor-pointer focus:bg-white/[0.06] py-2"
+          >
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${profile.isRecording ? 'bg-red-500/20' : 'bg-white/[0.05]'}`}>
               {profile.isRecording ? (
                 <div className="w-2 h-2 rounded-full bg-red-500" style={{ animation: 'smoothBlink 1.5s ease-in-out infinite' }} />
               ) : (
-                <Mic size={10} className="text-neutral-600" />
+                <Mic size={10} className="text-white/30" />
               )}
             </div>
-            <span className="text-[10px] text-white/80">Recording</span>
-            <span className={`ml-auto text-[8px] font-medium ${profile.isRecording ? 'text-red-400' : 'text-neutral-700'}`}>
+            <span className="text-[11px] text-white/80 ml-2">Recording</span>
+            <Badge variant="outline" className={`ml-auto text-[8px] border-none ${profile.isRecording ? 'text-red-400 bg-red-500/10' : 'text-white/20'}`}>
               {profile.isRecording ? 'ON' : 'OFF'}
-            </span>
-          </button>
+            </Badge>
+          </DropdownMenuItem>
 
           {/* Audio */}
-          <button onClick={onToggleAudio} className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-white/5 transition-colors">
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${profile.isAudioRunning ? 'bg-blue-500/20' : 'bg-white/5'}`}>
-              <Radio size={10} className={profile.isAudioRunning ? 'text-blue-400' : 'text-neutral-600'} style={profile.isAudioRunning ? { animation: 'smoothPulse 1.2s ease-in-out infinite' } : {}} />
+          <DropdownMenuItem
+            onClick={onToggleAudio}
+            className="rounded-lg cursor-pointer focus:bg-white/[0.06] py-2"
+          >
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${profile.isAudioRunning ? 'bg-blue-500/20' : 'bg-white/[0.05]'}`}>
+              <Radio size={10} className={profile.isAudioRunning ? 'text-blue-400' : 'text-white/30'} style={profile.isAudioRunning ? { animation: 'smoothPulse 1.2s ease-in-out infinite' } : {}} />
             </div>
-            <span className="text-[10px] text-white/80">Audio</span>
-            <span className={`ml-auto text-[8px] font-medium ${profile.isAudioRunning ? 'text-blue-400' : 'text-neutral-700'}`}>
-              {profile.isAudioRunning ? 'RUNNING' : 'IDLE'}
-            </span>
-          </button>
+            <span className="text-[11px] text-white/80 ml-2">Audio</span>
+            <Badge variant="outline" className={`ml-auto text-[8px] border-none ${profile.isAudioRunning ? 'text-blue-400 bg-blue-500/10' : 'text-white/20'}`}>
+              {profile.isAudioRunning ? 'ACTIVE' : 'IDLE'}
+            </Badge>
+          </DropdownMenuItem>
 
           {/* Connection */}
-          <button onClick={onToggleLinked} className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-white/5 transition-colors">
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${profile.isLinked ? 'bg-emerald-500/20' : 'bg-white/5'}`}>
-              <Link2 size={10} className={profile.isLinked ? 'text-emerald-400' : 'text-neutral-600'} />
+          <DropdownMenuItem
+            onClick={onToggleLinked}
+            className="rounded-lg cursor-pointer focus:bg-white/[0.06] py-2"
+          >
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${profile.isLinked ? 'bg-emerald-500/20' : 'bg-white/[0.05]'}`}>
+              <Link2 size={10} className={profile.isLinked ? 'text-emerald-400' : 'text-white/30'} />
             </div>
-            <span className="text-[10px] text-white/80">Connection</span>
-            <span className={`ml-auto text-[8px] font-medium ${profile.isLinked ? 'text-emerald-400' : 'text-neutral-700'}`}>
+            <span className="text-[11px] text-white/80 ml-2">Connection</span>
+            <Badge variant="outline" className={`ml-auto text-[8px] border-none ${profile.isLinked ? 'text-emerald-400 bg-emerald-500/10' : 'text-white/20'}`}>
               {profile.isLinked ? 'LINKED' : 'OFFLINE'}
-            </span>
-          </button>
+            </Badge>
+          </DropdownMenuItem>
         </div>
 
-        <DropdownMenuSeparator className="bg-white/5" />
+        <DropdownMenuSeparator className="bg-white/[0.06]" />
 
         <div className="p-2">
-          <button onClick={onToggleFlagged} className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[8px] text-neutral-600 hover:text-yellow-400 transition-colors">
-            <AlertTriangle size={10} />
-            {profile.isFlagged ? 'Unflag Account' : 'Flag Account (demo)'}
-          </button>
+          <DropdownMenuItem
+            onClick={onToggleFlagged}
+            className="rounded-lg cursor-pointer focus:bg-white/[0.06] justify-center py-1.5"
+          >
+            <AlertTriangle size={10} className="text-white/20" />
+            <span className="text-[9px] text-white/30 ml-1.5">
+              {profile.isFlagged ? 'Unflag Account' : 'Flag Account (demo)'}
+            </span>
+          </DropdownMenuItem>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
   )
 }
 
-// ============================================================================
-// Alternate Status — smooth transition between recording + audio
-// ============================================================================
+// ═══════════════════════════════════════════════════════════════
+// Alternate Status — smooth crossfade between recording + audio
+// ═══════════════════════════════════════════════════════════════
 
 function AlternateStatus() {
   const [showRecording, setShowRecording] = useState(true)
@@ -342,7 +398,7 @@ function AlternateStatus() {
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.5 }}
-          transition={{ duration: 0.3, ease: 'easeInOut' }}
+          transition={{ duration: 0.3, ease: appleEase }}
           className="w-2 h-2 rounded-full bg-red-500"
         />
       ) : (
@@ -351,7 +407,7 @@ function AlternateStatus() {
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.5 }}
-          transition={{ duration: 0.3, ease: 'easeInOut' }}
+          transition={{ duration: 0.3, ease: appleEase }}
         >
           <Radio size={8} className="text-blue-400" />
         </motion.div>
@@ -360,27 +416,32 @@ function AlternateStatus() {
   )
 }
 
-// ============================================================================
-// Home Page — Welcome → 5 rotating BLUR texts → version
-// ============================================================================
+// ═══════════════════════════════════════════════════════════════
+// Home View — Welcome → Blur + version (no rotating text)
+// ═══════════════════════════════════════════════════════════════
 
-function HomePage({ profile }: { profile: ProfileState }) {
-  const [phase, setPhase] = useState<'welcome' | 'blur'>('welcome')
+function HomeView({ profile }: { profile: ProfileState }) {
+  const [showWelcome, setShowWelcome] = useState(true)
 
   useEffect(() => {
-    const timer = setTimeout(() => setPhase('blur'), 2500)
+    const timer = setTimeout(() => setShowWelcome(false), 2500)
     return () => clearTimeout(timer)
   }, [])
 
   return (
-    <div className="h-full flex flex-col items-center justify-center relative">
-      {/* Flagged warning (Home only) */}
+    <div className="h-full flex flex-col items-center justify-center relative px-8">
+      {/* Flagged warning — Home only */}
       {profile.isFlagged && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute top-4 left-1/2 -translate-x-1/2 liquid-glass px-4 py-2 rounded-xl flex items-center gap-2"
-          style={{ borderColor: 'rgba(255,200,0,0.2)' }}
+          transition={{ duration: 0.3, ease: appleEase }}
+          className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl flex items-center gap-2"
+          style={{
+            background: 'rgba(28, 28, 30, 0.72)',
+            backdropFilter: 'blur(30px)',
+            border: '0.5px solid rgba(255,200,0,0.2)',
+          }}
         >
           <AlertTriangle size={12} className="text-yellow-400" />
           <span className="text-[10px] text-yellow-300">Your account has been flagged. Please contact an administrator.</span>
@@ -388,57 +449,47 @@ function HomePage({ profile }: { profile: ProfileState }) {
       )}
 
       <AnimatePresence mode="wait">
-        {phase === 'welcome' ? (
-          /* ─── Phase 1: Welcome [user] ─── */
+        {showWelcome ? (
+          // Phase 1: Welcome [user]
           <motion.div
             key="welcome"
             exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: 0.5, ease: appleEase }}
             className="text-center"
           >
-            <p className="text-[11px] text-white/40 uppercase tracking-widest mb-2">Welcome</p>
-            <h1 className="text-3xl font-bold text-white">{profile.name}</h1>
+            <p className="text-[12px] text-white/40 uppercase tracking-widest mb-2 font-medium">
+              Welcome
+            </p>
+            <motion.h1
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: appleEase, delay: 0.1 }}
+              className="text-4xl font-bold text-white tracking-tight"
+            >
+              {profile.name}
+            </motion.h1>
           </motion.div>
         ) : (
-          /* ─── Phase 2: 5 rotating BLUR texts + version tag ─── */
+          // Phase 2: Blur + version (no rotating text)
           <motion.div
             key="blur"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-            className="flex flex-col items-center"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, ease: appleEase }}
+            className="text-center"
           >
-            {/* 5 rotating BLUR texts — like the laser app */}
-            <div className="relative w-80 h-80 flex items-center justify-center">
-              {[0, 1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="absolute inset-0 flex items-center justify-center"
-                  style={{
-                    animation: `blurRotate ${20 + i * 4}s linear infinite`,
-                    animationDelay: `${i * 0.8}s`,
-                  }}
-                >
-                  <span
-                    className="text-6xl font-bold tracking-tighter select-none"
-                    style={{
-                      color: i === 0 ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.03)',
-                      transform: `translateY(${i * 6 - 12}px)`,
-                    }}
-                  >
-                    BLUR
-                  </span>
-                </div>
-              ))}
-
-              {/* Version tag below the rotating texts */}
-              <div className="relative z-10 text-center">
-                <p className="text-[10px] text-white/30 font-mono">Version 3.9.6</p>
-                <div className="flex items-center justify-center gap-1.5 mt-2">
-                  <div className={`w-1.5 h-1.5 rounded-full ${profile.isLinked ? 'bg-emerald-400' : 'bg-neutral-700'}`} />
-                  <span className="text-[9px] text-white/40">{profile.isLinked ? 'Linked' : 'Offline'}</span>
-                </div>
-              </div>
+            <h1 className="text-6xl font-bold tracking-tight text-white">
+              Blur
+            </h1>
+            <p className="text-[11px] text-white/30 font-mono mt-3">
+              Version 3.9.6
+            </p>
+            {/* Linked status */}
+            <div className="flex items-center justify-center gap-1.5 mt-4">
+              <div className={`w-1.5 h-1.5 rounded-full ${profile.isLinked ? 'bg-emerald-400' : 'bg-white/20'}`} />
+              <span className="text-[10px] text-white/40">
+                {profile.isLinked ? 'Linked to Roblox' : 'Not connected'}
+              </span>
             </div>
           </motion.div>
         )}
@@ -447,16 +498,23 @@ function HomePage({ profile }: { profile: ProfileState }) {
   )
 }
 
-// ============================================================================
-// Placeholder page
-// ============================================================================
+// ═══════════════════════════════════════════════════════════════
+// Placeholder View — other tabs
+// ═══════════════════════════════════════════════════════════════
 
-function PlaceholderPage({ page }: { page: string }) {
+function PlaceholderView({ page }: { page: string }) {
   return (
     <div className="h-full flex items-center justify-center">
-      <div className="liquid-glass rounded-2xl p-8 text-center">
+      <div
+        className="rounded-2xl p-8 text-center"
+        style={{
+          background: 'rgba(28, 28, 30, 0.5)',
+          backdropFilter: 'blur(30px)',
+          border: '0.5px solid rgba(255,255,255,0.08)',
+        }}
+      >
         <p className="text-sm text-white/60 capitalize">{page}</p>
-        <p className="text-[10px] text-neutral-700 mt-1">This panel will be built next</p>
+        <p className="text-[10px] text-white/20 mt-1">This panel will be built next</p>
       </div>
     </div>
   )

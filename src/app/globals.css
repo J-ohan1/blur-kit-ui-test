@@ -2,23 +2,15 @@
 
 :root {
   --bg: #000000;
-  /* Apple semantic colors (dark mode) */
-  --label-primary: rgba(255,255,255,1.0);
-  --label-secondary: rgba(255,255,255,0.6);
-  --label-tertiary: rgba(255,255,255,0.3);
-  --label-quaternary: rgba(255,255,255,0.18);
-  --fill-primary: rgba(120,120,128,0.36);
-  --fill-secondary: rgba(120,120,128,0.32);
-  --separator: rgba(84,84,88,0.65);
-  --bg-elevated: rgba(28,28,30,0.72);
 }
 
 * { box-sizing: border-box; }
 
 html, body {
-  margin: 0; padding: 0;
+  margin: 0;
+  padding: 0;
   background: var(--bg);
-  color: var(--label-primary);
+  color: white;
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', sans-serif;
   overflow: hidden;
   height: 100vh;
@@ -26,71 +18,23 @@ html, body {
   letter-spacing: -0.01em;
 }
 
-/* ─── Apple-style smooth blink (ease-in-out, not hard on/off) ─── */
+/* ─── Smooth blink (ease-in-out, Apple-style) ─── */
 @keyframes smoothBlink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.15; }
 }
 
-/* ─── Audio pulse (smooth scale) ─── */
+/* ─── Smooth pulse (for audio icon) ─── */
 @keyframes smoothPulse {
   0%, 100% { transform: scale(1); opacity: 0.7; }
   50% { transform: scale(1.25); opacity: 1; }
 }
 
-/* ─── Rotating BLUR text (like the laser app) ─── */
-@keyframes blurRotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* ─── Gradient sweep across nav bar ─── */
-@keyframes gradientSweep {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.navbar-gradient {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255,255,255,0.04) 25%,
-    rgba(255,255,255,0.12) 50%,
-    rgba(255,255,255,0.04) 75%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
-  animation: gradientSweep 8s linear infinite;
-}
-
-/* ─── Liquid glass (real, with specular + refraction) ─── */
-.liquid-glass {
-  background: rgba(20, 20, 20, 0.55);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border: 0.5px solid rgba(255, 255, 255, 0.12);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.5),
-    inset 0 0.5px 0 rgba(255, 255, 255, 0.15),
-    inset 0 -0.5px 0 rgba(255, 255, 255, 0.05);
-}
-
-.liquid-glass-elevated {
-  background: rgba(28, 28, 30, 0.72);
-  backdrop-filter: blur(50px) saturate(200%);
-  -webkit-backdrop-filter: blur(50px) saturate(200%);
-  border: 0.5px solid rgba(255, 255, 255, 0.15);
-  box-shadow:
-    0 16px 48px rgba(0, 0, 0, 0.6),
-    inset 0 0.5px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -0.5px 0 rgba(255, 255, 255, 0.05);
-}
-
-/* ─── Smooth scrollbar (Apple style) ─── */
+/* ─── Scrollbar (minimal, Apple-style) ─── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
 
 .nav-scroll::-webkit-scrollbar { display: none; }
 .nav-scroll { -ms-overflow-style: none; scrollbar-width: none; }
